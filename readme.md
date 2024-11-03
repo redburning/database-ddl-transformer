@@ -44,8 +44,8 @@ DataBaseConnection oracleConn = DataBaseConnection.builder()
         .build();
 
 String createTableDDL = new Transformer(mysqlConn, oracleConn)
-		.transformCreateTableDDL("cdc_test_source", ".*")    // .* 表示整库同步, 或配置具体表名
-		.getTransformedCreateTableDDL();
+    .transformCreateTableDDL("cdc_test_source", ".*")    // .* 表示整库同步, 或配置具体表名
+    .getTransformedCreateTableDDL();
 System.out.println(createTableDDL);
 ```
 
