@@ -1,0 +1,37 @@
+{
+    "dataTypeMapping": {
+        "char(n)": "char(n)",
+        "bpchar": "char(n)",
+        "varchar(n)": "varchar(n)",
+        "inet": "varchar(45)",
+        "uuid": "varchar(32)",
+        "text": "text",
+        "xml": "text",
+        "int2": "smallint",
+        "int4": "int",
+        "int8": "bigint",
+        "float4": "float",
+        "float8": "double",
+        "decimal": "decimal",
+        "numeric": "decimal",
+        "serial": "int",
+        "bigserial": "bigint",
+        "bool": "boolean",
+        "date": "date",
+        "time": "time",
+        "datetime": "timestamp",
+        "timestamp": "timestamp",
+        "timestampz": "datetime",
+        "bit": "bit",
+        "json": "json",
+        "jsonb": "json",
+        "point": "point",
+        "polygon": "polygon",
+        "bytea": "blob"
+    },
+    "defaultValueMapping": {
+        "now\\(\\)": "CURRENT_TIMESTAMP",
+        "nextval.*": null,
+        "(.*?)::character varying": "$1"
+    }
+}

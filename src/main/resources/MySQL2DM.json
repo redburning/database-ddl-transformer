@@ -1,0 +1,40 @@
+{
+    "dataTypeMapping": {
+        "char(n)": "CHAR(n)",
+        "varchar(n)": "VARCHAR(n)",
+        "enum": "VARCHAR(n)",
+        "set": "VARCHAR(n)",
+        "tinytext": "VARCHAR(n)",
+        "tinyint": "TINYINT",
+        "smallint": "SMALLINT",
+        "mediumint": "INT",
+        "int": "INT",
+        "bigint": "BIGINT",
+        "float": "FLOAT",
+        "double": "DOUBLE",
+        "numeric": "NUMERIC",
+        "decimal": "DECIMAL",
+        "date": "DATE",
+        "time": "TIMESTAMP",
+        "datetime": "TIMESTAMP",
+        "timestamp": "TIMESTAMP",
+        "tinyblob": "BLOB",
+        "blob": "BLOB",
+        "mediumblob": "BLOB",
+        "longblob": "BLOB",
+        "text": "CLOB",
+        "mediumtext": "CLOB",
+        "longtext": "CLOB",
+        "json": "CLOB",
+        "linestring": "CLOB",
+        "multilinestring": "CLOB",
+        "bit(n)": "BINARY(n)",
+        "binary(n)": "BINARY(n)",
+        "varbinary": "VARBINARY(n)"
+    },
+    "defaultValueMapping": {
+        "CURRENT_TIMESTAMP": "CURRENT_TIMESTAMP",
+        "CURRENT_DATE": "CURRENT_DATE",
+        "CURRENT_TIME": "CURRENT_TIME"
+    }
+}

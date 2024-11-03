@@ -1,0 +1,32 @@
+{
+    "dataTypeMapping": {
+        "char(n)": "CHAR(n)",
+        "bool": "CHAR(1)",
+        "varchar(n)": "VARCHAR2(n)",
+        "inet": "VARCHAR2(45)",
+        "uuid": "VARCHAR2(32)",
+        "int2": "SMALLINT",
+        "int4": "INT",
+        "int8": "INT",
+        "float4": "BINARY_FLOAT",
+        "float8": "BINARY_DOUBLE",
+        "decimal": "DECIMAL",
+        "numeric": "NUMERIC",
+        "date": "DATE",
+        "time": "TIME",
+        "datetime": "TIMESTAMP",
+        "timestamp": "TIMESTAMP",
+        "timestampz": "TIMESTAMP WITH TIME ZONE",
+        "bit": "RAW(1)",
+        "json": "CLOB",
+        "text": "CLOB",
+        "xml": "CLOB",
+        "bytea": "BLOB",
+        "jsonb": "BLOB"
+    },
+    "defaultValueMapping": {
+        "now\\(\\)": "CURRENT_TIMESTAMP",
+        "nextval.*": null,
+        "(.*?)::character varying": "$1"
+    }
+}
