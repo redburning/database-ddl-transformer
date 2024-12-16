@@ -7,6 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +19,7 @@ import com.alibaba.fastjson.JSONObject;
 
 import database.ddl.transformer.bean.Column;
 import database.ddl.transformer.bean.DataBaseConnection;
+import database.ddl.transformer.bean.DataBaseType;
 import database.ddl.transformer.bean.Table;
 import database.ddl.transformer.core.generate.BaseDdlGenerator;
 import database.ddl.transformer.core.generate.DdlGeneratorFactory;
@@ -30,52 +35,49 @@ public class Transformer {
 	private static final String DATA_TYPE_MAPPING = "dataTypeMapping";
 	private static final String DEFAULT_VALUE_MAPPING = "defaultValueMapping";
 	
-	/**
-	 * Name of transformer, such as MySQL2Oracle, MySQL2PostgreSQL, Oracle2MySQL.
-	 */
+	// Name of transformer, such as MySQL2Oracle, MySQL2PostgreSQL.
 	private String name;
 	
-	/**
-	 * Metadata fetcher of source database
-	 */
+	// Metadata fetcher of source database
 	private BaseMetaDataFetcher sourceFetcher;
 	
-	/**
-	 * DDL generator for target database
-	 */
+	// DDL generator for target database
 	private BaseDdlGenerator ddlGenerator;
 	
-	/**
-	 * Source database connection
-	 */
-	private DataBaseConnection sourceConn;
-	
-	/**
-	 * Target database connection
-	 */
+	// Target database connection
 	private DataBaseConnection targetConn;
 	
-	/**
-	 * Datatype mapping
-	 */
+	// database type of source
+	private DataBaseType sourceDataBaseType;
+	
+	// database type of target
+	private DataBaseType targetDataBaseType;
+	
+	// Datatype mapping
 	private Map<String, String> dataTypeMapping;
 	
-	/**
-	 * Default value mapping
-	 */
+	// Default value mapping
 	private Map<String, String> defaultValueMapping;
 	
-	/**
-	 * Transformed result - Create table DDL
-	 */
+	// Transformed result - Create table DDL
 	private String transformedCreateTableDDL;
 	
 	public Transformer(DataBaseConnection sourceConn, DataBaseConnection targetConn) throws Exception {
-		this.name = sourceConn.getDatabaseType().getType() + "2" + targetConn.getDatabaseType().getType();
+		this.sourceDataBaseType = sourceConn.getDatabaseType();
+		this.targetDataBaseType = targetConn.getDatabaseType();
+		this.name = sourceDataBaseType.getType() + "2" + targetDataBaseType.getType();
 		this.sourceFetcher = MetaDataFetcherFactory.getMetaDataFetcher(sourceConn);
-		this.ddlGenerator = DdlGeneratorFactory.getDdlGenerator(targetConn);
-		this.sourceConn = sourceConn;
+		this.ddlGenerator = DdlGeneratorFactory.getDdlGenerator(targetDataBaseType);
 		this.targetConn = targetConn;
+		initMapping();
+	}
+	
+	public Transformer(DataBaseConnection sourceConn, DataBaseType targetDataBaseType) throws Exception {
+		this.sourceDataBaseType = sourceConn.getDatabaseType();
+		this.targetDataBaseType = targetDataBaseType;
+		this.name = sourceDataBaseType + "2" + targetDataBaseType.getType();
+		this.sourceFetcher = MetaDataFetcherFactory.getMetaDataFetcher(sourceConn);
+		this.ddlGenerator = DdlGeneratorFactory.getDdlGenerator(targetDataBaseType);
 		initMapping();
 	}
 	
@@ -120,25 +122,52 @@ public class Transformer {
 	public Transformer transformCreateTableDDL(String database, String tableReg) throws Exception {
 		List<String> tableList = sourceFetcher.getTables(database);
 		StringBuilder sb = new StringBuilder();
-		for (String table : tableList) {
-			if (table.matches(tableReg)) {
-				sb.append("-- ------------------------------------------\n");
-				sb.append("-- Table structure for " + table + "\n");
-				sb.append("-- ------------------------------------------\n");
-				List<Column> sourceColumns = sourceFetcher.getColumns(database, table);
-				List<String> primaryKeys = sourceFetcher.getPrimaryKeys(database, table);
-				Table sourceTableBean = Table.builder().name(table).database(database)
-						.columns(sourceColumns).primaryKeys(primaryKeys).build();
-				Table targetTableBean = null;
-				if (sameDataBaseType()) {
-					targetTableBean = sourceTableBean;
-				} else {
-					targetTableBean = transformTable(sourceTableBean);
-				}
-				sb.append(ddlGenerator.buildCreateTableDDL(targetTableBean));
-				sb.append("\n\n");
-			}
-		}
+		
+		ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		
+		List<CompletableFuture<String>> futures = tableList.stream()
+		        .filter(table -> table.matches(tableReg))
+		        .map(table -> CompletableFuture.supplyAsync(() -> {
+		            try {
+		                StringBuilder innerSb = new StringBuilder();
+		                innerSb.append("-- ------------------------------------------\n");
+		                innerSb.append("-- Table structure for " + table + "\n");
+		                innerSb.append("-- ------------------------------------------\n");
+		                
+		                List<Column> sourceColumns = sourceFetcher.getColumns(database, table);
+		                List<String> primaryKeys = sourceFetcher.getPrimaryKeys(database, table);
+		                
+		                Table sourceTableBean = Table.builder()
+		                        .name(table)
+		                        .database(database)
+		                        .columns(sourceColumns)
+		                        .primaryKeys(primaryKeys)
+		                        .build();
+		                
+		                Table targetTableBean = sameDataBaseType() ? sourceTableBean : transformTable(sourceTableBean);
+		                innerSb.append(ddlGenerator.buildCreateTableDDL(targetTableBean));
+		                innerSb.append("\n\n");
+		                
+		                return innerSb.toString();
+		            } catch (Exception e) {
+		                throw new RuntimeException("Failed to process table: " + table, e);
+		            }
+		        }, executorService))
+		        .collect(Collectors.toList());
+		
+		CompletableFuture<Void> allFutures = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+		
+		try {
+	        allFutures.get(); // Wait for all futures to complete
+	        for (CompletableFuture<String> future : futures) {
+	            sb.append(future.get()); // Append the result of each future
+	        }
+	    } catch (Exception e) {
+	        throw new Exception("Failed to process tables", e);
+	    } finally {
+	        executorService.shutdown(); // Shutdown the executor service
+	    }
+	    
 		transformedCreateTableDDL = sb.toString();
 		return this;
 	}
@@ -186,8 +215,12 @@ public class Transformer {
 				throw new Exception("datatype mapping of [" + sourceType + "] was not found.");
 			}
 		}
-		Table transformedTableBean = Table.builder().name(table.getName()).database(table.getDatabase())
-				.columns(transformedColumns).primaryKeys(table.getPrimaryKeys()).build();
+		Table transformedTableBean = Table.builder()
+				.name(table.getName())
+				.database(table.getDatabase())
+				.columns(transformedColumns)
+				.primaryKeys(table.getPrimaryKeys())
+				.build();
 		return transformedTableBean;
 	}
 	
@@ -204,8 +237,12 @@ public class Transformer {
 	 * Auto execute create table in target database
 	 * 
 	 * @return true for success, false for fail
+	 * @throws Exception 
 	 */
-	public boolean executeCreateTable() {
+	public boolean executeCreateTable() throws Exception {
+		if (targetConn == null) {
+			throw new Exception("target connection has not been initialized");
+		}
 		logger.info(transformedCreateTableDDL);
 		try (Connection conn = targetConn.connect(); Statement statement = conn.createStatement()) {
 			statement.execute(transformedCreateTableDDL);
@@ -230,7 +267,7 @@ public class Transformer {
 	}
 	
 	private boolean sameDataBaseType() {
-		return sourceConn.getDatabaseType() == targetConn.getDatabaseType();
+		return sourceDataBaseType == targetDataBaseType;
 	}
 	
 }

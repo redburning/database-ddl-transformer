@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import database.ddl.transformer.bean.Column;
-import database.ddl.transformer.bean.DataBaseConnection;
 import database.ddl.transformer.bean.Table;
 import database.ddl.transformer.utils.StringUtil;
 
@@ -18,8 +17,6 @@ public abstract class BaseDdlGenerator {
 	protected static final String INDENT4 = "    ";
 	protected static final String NEWLINE = "\n";
 	
-	protected DataBaseConnection connection;
-	
 	/**
 	 * Whether table names and column names are case-sensitive
 	 */
@@ -27,8 +24,7 @@ public abstract class BaseDdlGenerator {
 	
 	protected List<String> dataTypeNeedSizeList = new ArrayList<>();
 	
-	public BaseDdlGenerator(DataBaseConnection connection) {
-		this.connection = connection;
+	public BaseDdlGenerator() {
 		initDataTypeNeedSizeList();
 	}
 	
@@ -70,9 +66,14 @@ public abstract class BaseDdlGenerator {
 	 * @return
 	 */
 	protected String buildPrimaryKeyFragment(List<String> primaryKeys) {
-		if (primaryKeys != null && !primaryKeys.isEmpty()) {
-			String primaryKeyFragment = INDENT4 + String.format("PRIMARY KEY (%s)", String.join(", ",
-					primaryKeys.stream().map(item -> quote(convertCase(item))).collect(Collectors.toList())));
+		if (!StringUtil.isBlank(primaryKeys)) {
+			String primaryKeyFragment = INDENT4 + String.format("PRIMARY KEY (%s)", 
+					String.join(", ",
+						primaryKeys.stream()
+							.map(item -> quote(convertCase(item)))
+							.collect(Collectors.toList())
+					)
+				);
 			return primaryKeyFragment;
 		}
 		return null;
@@ -169,7 +170,9 @@ public abstract class BaseDdlGenerator {
 		
 		// primary key fragment
 		String primaryKeyFragment = buildPrimaryKeyFragment(table.getPrimaryKeys());
-		columnDefFragmentList.add(primaryKeyFragment);
+		if (!StringUtil.isBlank(primaryKeyFragment)) {
+			columnDefFragmentList.add(primaryKeyFragment);
+		}
 		
 		String columnDefFragment = " (\n" + String.join(",\n", columnDefFragmentList) + "\n);";
 		String columnCommentFragment = String.join(NEWLINE, columnComments);

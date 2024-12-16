@@ -1,5 +1,7 @@
 package database.ddl.transformer.utils;
 
+import java.util.List;
+
 public class StringUtil {
 
 	/**
@@ -10,6 +12,10 @@ public class StringUtil {
 	 */
 	public static boolean isBlank(String string) {
 		return string == null || string.trim().length() == 0;
+	}
+	
+	public static boolean isBlank(List<String> list) {
+		return list == null || list.isEmpty();
 	}
 	
 }

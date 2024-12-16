@@ -5,15 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 
 import database.ddl.transformer.bean.Column;
-import database.ddl.transformer.bean.DataBaseConnection;
 import database.ddl.transformer.bean.Table;
 import database.ddl.transformer.core.generate.BaseDdlGenerator;
 import database.ddl.transformer.utils.StringUtil;
 
 public class MySQLDdlGenerator extends BaseDdlGenerator {
 
-	public MySQLDdlGenerator(DataBaseConnection connection) {
-		super(connection);
+	public MySQLDdlGenerator() {
+		super();
 		this.caseSensitive = CaseSensitive.LOWERCASE;
 	}
 
