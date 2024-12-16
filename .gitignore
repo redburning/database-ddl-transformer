@@ -24,3 +24,8 @@ hs_err_pid*
 
 /target/
 /logs/
+/.settings/
+/bin/
+.classpath
+.project
+.gitignore
