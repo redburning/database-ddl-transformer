@@ -1,0 +1,29 @@
+<template>
+	<div>
+		<div class="page-header">
+			<div class="flex-between flex-start">
+				<div class="title-info-container">
+					<h1>数据源管理</h1>
+				</div>
+				<el-button type="primary" size="small" class="icon-plus" @click="addDatasource">新增数据源</el-button>
+			</div>
+			<div class="desc">查看和管理您的数据源</div>
+		</div>
+		<div class="border-input margin-bottom-16">
+	        <el-input v-model="searchInput" placeholder="Search by name or type" prefix-icon="el-icon-search"></el-input>
+	    </div>
+		<div v-for="item in filteredDatasourceList" :key="item.id">
+			<div class="list-item flex" @click="editDatasource(item.type, item.id)">
+				<img :src="item.icon" class="list-item-logo margin-right-16">
+	            <div>
+	                <div class="list-item-title">{{ item.name }}</div>
+	                <div class="list-item-desc">{{ item.type }}
+	                    <span class="line-separator">|</span>{{ item.property.url }}
+	                    <span class="line-separator">|</span>
+	                    <span :class="item.status === 'success' ? 'state-success' : 'state-error'">{{ item.status === 'success' ? 'Valid' : 'Invalid' }}</span>
+	                </div>
+	            </div>
+			</div>
+		</div>
+	</div>
+</template>

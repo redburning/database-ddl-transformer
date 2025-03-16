@@ -8,7 +8,7 @@ import com.alibaba.fastjson.JSONObject;
 public class JsonUtil {
 
 	public static JSONObject loadJson(String fileName) {
-		try (InputStream inputStream = JsonUtil.class.getClassLoader().getResourceAsStream(fileName);
+		try (InputStream inputStream = JsonUtil.class.getClassLoader().getResourceAsStream("config/" + fileName);
 				Scanner scanner = new Scanner(inputStream)) {
 			String content = scanner.useDelimiter("\\A").next();
 			JSONObject jsonObject = JSONObject.parseObject(content);

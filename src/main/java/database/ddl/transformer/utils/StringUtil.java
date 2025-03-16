@@ -18,4 +18,20 @@ public class StringUtil {
 		return list == null || list.isEmpty();
 	}
 	
+	/**
+     * 检查字符串是否包含正则字符
+     * 
+     * @param str
+     * @return
+     */
+    public static boolean containsRegexCharacter(String str) {
+        // 定义正则表达式的特殊字符集合
+        String specialCharacters = ".*+?^${}()|[\\]\\\\";
+        for (char ch : str.toCharArray()) {
+            if (specialCharacters.indexOf(ch) != -1) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

@@ -1,0 +1,152 @@
+.img-select {
+    position: relative;
+    width: 400px;
+}
+
+.input-wrapper {
+    display: flex;
+    align-items: center;
+    position: relative;
+    height: 32px;
+}
+
+.input-prefix-icon {
+    width: 100%;
+    z-index: 1;
+}
+
+.input-prefix-icon-container {
+    position: absolute;
+    padding: 5px 8px;
+    height: 100%;
+    display: flex;
+    justify-content: flex-start;
+    box-sizing: border-box;
+}
+
+.input-prefix-icon-container:hover {
+    cursor: pointer;
+}
+
+.input-postfix-icon {
+    height: 100%;
+    padding-left: 8px;
+    padding-right: 8px;
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+}
+
+.input-postfix-icon:hover {
+    cursor: pointer;
+}
+
+.input-text {
+    padding-left: 65px;
+    padding-right: 28px;
+    background: rgb(255, 255, 255);
+    line-height: 1.57143;
+    font-size: 14px;
+    color: rgb(36, 41, 46);
+    border: 1px solid rgba(36, 41, 46, 0.3);
+    flex-grow: 1;
+    border-radius: 4px;
+    height: 100%;
+    width: 100%;
+    z-index: 0;
+}
+
+.input-text:focus {
+    outline: unset;
+    box-shadow: rgb(244, 245, 245) 0px 0px 0px 2px, rgb(56, 113, 220) 0px 0px 0px 4px;
+}
+
+.select-option-list {
+    display: flex;
+    flex-direction: column;
+    box-shadow: rgba(24, 26, 27, 0.18) 0px 13px 20px 1px;
+    max-height: 200px;
+    width: 400px;
+    overflow-y: auto;
+    border: 1px solid rgba(36, 41, 46, 0.12);
+    position: absolute;
+    top: 38px;
+    z-index: 1001;
+}
+
+.select-option {
+    display: flex;
+    align-items: center;
+    height: 24px;
+    padding: 6px;
+    cursor: pointer;
+    background-color: #ffffff;
+    border-bottom: 1px solid rgba(36, 41, 46, 0.12);
+}
+
+.select-option:hover {
+    background-color: #eceded;
+}
+
+.selected-option {
+    background-color: #f5f7fa;
+}
+
+.select-option-icon-container {
+    min-width: 50px;
+    max-width: 50px;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    margin-right: 10px;
+}
+
+.select-option-icon {
+    height: 100%;
+    display: flex;
+}
+
+.select-option-name {
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+.select-option-label {
+    font-size: 12px;
+    color: rgba(36, 41, 46, 0.75);
+    white-space: nowrap;
+}
+
+.flex-between {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.fill-content {
+    width: 100%;
+    height: 100%;
+}
+
+/* 滚动条整体样式 */
+.select-option-list::-webkit-scrollbar {
+    width: 6px;
+}
+/* 滚动条轨道样式 */
+.select-option-list::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 6px;
+}
+/* 滚动条滑块样式 */
+.select-option-list::-webkit-scrollbar-thumb {
+    background: #dadcdd;
+    border-radius: 6px;
+}
+/* 滑块 hover 样式 */
+.select-option-list::-webkit-scrollbar-thumb:hover {
+    background: #999;
+}

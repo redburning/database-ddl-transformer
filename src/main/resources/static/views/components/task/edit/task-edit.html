@@ -1,0 +1,135 @@
+<template>
+	<div>
+		<div class="page-header">
+			<div class="flex-between flex-start">
+				<div class="title-info-container">
+					<h1>Transformer tasks</h1>
+				</div>
+				<el-button type="primary" size="small" class="icon-save" @click="saveTaskDialogVisible = true">保存任务</el-button>
+			</div>
+		</div>
+		<div class="margin-bottom-16">
+			<div class="flex-between">
+				<div class="form-margin" style="border-color:#5081cb">
+					<div class="flex-column">
+						<div class="source-title">源端</div>
+						<div class="flex-center">
+							<div class="form-label">数据源</div>
+							<datasource-select v-model="sourceDatasource" :options="datasourceOptions" @change="onSourceDatasourceChange"></datasource-select>
+						</div>
+						<div class="flex-center border-select">
+							<div class="form-label">数据库</div>
+							<el-select v-model="task.sourceDatabase" @change="onSourceDatabaseChange" placeholder="Select database" style="width:400px;">
+								<el-option v-for="item in sourceDatabaseOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+							</el-select>
+						</div>
+					</div>
+				</div>
+				<img src="assets/img/icon-transform.svg" style="height:36px;">
+				<div class="form-margin" style="border-color:#f69b16">
+					<div class="flex-column">
+						<div class="target-title">目标端</div>
+						<div class="flex-center">
+							<div class="form-label">数据源</div>
+							<datasource-select v-model="targetDatasource" :options="datasourceOptions" @change="onTargetDatasourceChange"></datasource-select>
+						</div>
+						<div class="flex-center border-select">
+							<div class="form-label">数据库</div>
+							<el-select v-model="task.targetDatabase" @change="onTargetDatabaseChange" 
+								placeholder="Select database" class="border-select" style="height:36px; width:400px;">
+								<el-option v-for="item in targetDatabaseOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+							</el-select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div>
+			<div class="desc" v-show="task.subtasks.length > 0">
+				<span>源端数据库<span class="highlight-green margin-gap-5">{{ task.sourceDatabase }}</span>已选择<span class="highlight-green margin-gap-5">{{ task.subtasks.length }}</span>个表; 其中<span class="highlight-green margin-gap-5">{{ countMatchedTables }}</span>个表在目标端数据源已经存在
+			</div>
+			<div class="flex-between margin-bottom-16 margin-top-16" v-if="task.subtasks.length > 0">
+				<div class="search-input">
+		        	<el-input v-model="searchInput" size="small" prefix-icon="el-icon-search" style="width:300px;" @input="filterTable"></el-input>
+		    	</div>
+		    	<div class="flex gap-8">
+		    		<el-button-group>
+			    		<el-button type="plain" size="small" @click="showAll">全部</el-button>
+			    		<el-button type="plain" size="small" @click="filterConflict">表已存在</el-button>
+			    		<el-button type="plain" size="small" @click="filterTransformSuccess">转换成功</el-button>
+			    		<el-button type="plain" size="small" @click="filterTransformFailed">转换失败</el-button>
+			    		<el-button type="plain" size="small" @click="filterExecuteSuccess">创建成功</el-button>
+			    		<el-button type="plain" size="small" @click="filterExecuteFailed">创建失败</el-button>
+			    	</el-button-group>
+			    	<el-button type="danger" plain size="small" @click="deleteSelectedRows" :disabled="selectedRows.length===0">删除</el-button>
+		    	</div>
+			</div>
+			<div style="overflow-y:auto;">
+				<el-table border :data="filteredTableList" @selection-change="handleSelectionChange" height="calc(100vh - 425px)"
+					v-loading="loading" element-loading-text="加载中" element-loading-spinner="el-icon-loading" 
+					element-loading-background="rgba(0, 0, 0, 0.8)">
+					<el-table-column type="selection" width="55"></el-table-column>
+					<el-table-column prop="sourceDatabase" label="来源库"></el-table-column>
+					<el-table-column prop="sourceTable" label="来源表"></el-table-column>
+					<el-table-column prop="targetDatabase" label="目标库"></el-table-column>
+					<el-table-column prop="targetTable" label="目标表"></el-table-column>
+					<el-table-column prop="createMode" label="目标表创建方式" width="170">
+						<template slot-scope="scope">
+							<el-select size="mini" v-model="scope.row.createMode">
+								<el-option v-for="item in createModeOptions" :key="item.value" :label="item.label" :value="item.value"></el-option>
+							</el-select>
+						</template>
+					</el-table-column>
+					<el-table-column label="状态" width="200">
+						<template slot-scope="scope">
+							<div class="status-bar">
+								<span :class="getTransformStatusClass(scope.row.transformStatus)" 
+									v-if="scope.row.transformStatus !== null">{{ scope.row.transformStatus }}</span>
+								<span :class="getExecuteStatusClass(scope.row.executeStatus)" 
+									v-if="scope.row.executeStatus !== null">{{ scope.row.executeStatus }}</span>
+							</div>
+						</template>
+					</el-table-column>
+					<el-table-column label="操作" width="180">
+						<template slot-scope="scope">
+							<el-button @click="viewSQL(scope.$index)" type="text" size="small" :disabled="scope.row.sql===null">预览/编辑SQL</el-button>
+							<el-button @click="executeSQL(scope.$index)" type="text" size="small" :disabled="scope.row.sql===null">执行SQL</el-button>
+						</template>
+					</el-table-column>
+				</el-table>
+			</div>
+			<div class="justify-center margin-top-8" v-show="task.subtasks.length > 0">
+				<el-button type="primary" size="small" @click="startTransform">开始转换</el-button>
+				<el-button type="plain" size="small" @click="executeCreateTable" :disabled="!transformFinished">开始建表</el-button>
+			</div>
+		</div>
+		
+		<el-dialog title="预览/编辑SQL" :visible.sync="editSqlDialogVisible" width="50%" destroy-on-close="true">
+  			<pre class="sql-container">
+		        <textarea id="code" v-model="currentSQL"></textarea>
+		    </pre>
+			<span slot="footer" class="dialog-footer flex" style="justify-content:flex-end;">
+			    <el-button type="plain" @click="editSqlDialogVisible = false">取 消</el-button>
+			    <el-button type="primary" @click="saveSQL">保 存</el-button>
+			</span>
+	    </el-dialog>
+	    
+	    <el-dialog title="保存任务" :visible.sync="saveTaskDialogVisible" width="500px" destroy-on-close="true">
+	    	<div class="border-input margin-30">
+	    		<el-input v-model="task.name" placeholder="请输入任务名称"></el-input>
+	    	</div>
+			<span slot="footer" class="dialog-footer flex" style="justify-content:flex-end;">
+			    <el-button type="plain" @click="saveTaskDialogVisible = false">取 消</el-button>
+			    <el-button type="primary" @click="saveTask">保 存</el-button>
+			</span>
+	    </el-dialog>
+	    
+	    <div v-if="taskRunning" class="progress">
+        	<span>{{ "current progress:" + progressMsg }}</span>
+        	<div>
+        		<el-progress :percentage="progress" color="#1989fa"></el-progress>
+        	</div>
+	    </div>
+	</div>
+</template>

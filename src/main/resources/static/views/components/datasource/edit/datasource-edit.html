@@ -1,0 +1,77 @@
+<template>
+	<div>
+		<div class="page-header">
+			<div class="flex-center">
+				<img :src="icon" class="datasource-icon">
+				<div class="datasource-title">{{ type }}</div>
+			</div>
+		</div>
+		<hr class="divider-line">
+		<div class="datasource-subtitle">连接信息</div>
+		<div class="form-items">
+			<div class="flex-center">
+				<div class="form-item-label">数据源名称</div>
+				<div class="border-input">
+			        <el-input v-model="datasource.name" placeholder="数据源名称" style="width:400px;"></el-input>
+			    </div>
+			</div>
+			<div class="flex-center">
+				<div class="form-item-label">JDBC URL</div>
+				<div class="border-input">
+			        <el-input v-model="datasource.property.url" :placeholder="defaultJdbcUrl" style="width:400px;"></el-input>
+			    </div>
+			</div>
+			<div class="flex-center">
+				<div class="form-item-label">Database name</div>
+				<div class="border-input">
+			        <el-input v-model="datasource.property.database" style="width:400px;"></el-input>
+			    </div>
+			</div>
+			<div class="flex-center">
+				<div class="form-item-label">用户名</div>
+				<div class="border-input">
+			        <el-input v-model="datasource.property.user" style="width:400px;"></el-input>
+			    </div>
+			</div>
+			<div class="flex-center">
+				<div class="form-item-label">密码</div>
+				<div class="border-input">
+			        <el-input v-model="datasource.property.passwd" type="password" style="width:400px;"></el-input>
+			    </div>
+			</div>
+		</div>
+		<div class="margin-top-50">
+			<div v-if="datasource.status==='success'">
+				<div class="validate-success-info">
+					<div class="validate-result-icon">
+		               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+		                   <path fill="rgb(10, 118, 78)" d="M18.71,7.21a1,1,0,0,0-1.42,0L9.84,14.67,6.71,11.53A1,1,0,1,0,5.29,13l3.84,3.84a1,1,0,0,0,1.42,0l8.16-8.16A1,1,0,0,0,18.71,7.21Z"></path>
+		               </svg>
+		           	</div>
+		           	<div class="validate-result">
+		           		<div class="validate-msg-title">连接成功</div>
+		           		<div class="validate-msg-desc">接下来，您可以<router-link to="/task/list">创建转换任务</router-link>。</div>
+		           	</div>
+				</div>
+			</div>
+			<div v-if="datasource.status==='error'">
+				<div class="validate-error-info">
+					<div class="validate-result-icon">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+		                   <path fill="rgb(207, 14, 91)" d="M12,14a1.25,1.25,0,1,0,1.25,1.25A1.25,1.25,0,0,0,12,14Zm0-1.5a1,1,0,0,0,1-1v-3a1,1,0,0,0-2,0v3A1,1,0,0,0,12,12.5ZM12,2A10,10,0,1,0,22,12,10.01114,10.01114,0,0,0,12,2Zm0,18a8,8,0,1,1,8-8A8.00917,8.00917,0,0,1,12,20Z"></path>
+		            	</svg>
+					</div>
+					<div class="validate-result">
+		           		<div class="validate-msg-title">连接失败</div>
+		           		<div class="validate-msg-desc">{{ testMsg }}</div>
+		           	</div>
+				</div>
+			</div>
+		</div>
+		<div class="flex margin-top-50">
+			<el-button type="danger" size="small" @click="deleteDatasource" :disabled="datasource.id === null">删除</el-button>
+			<el-button type="plain" size="small" @click="testDatasource">测试连接</el-button>
+			<el-button type="primary" size="small" @click="saveDatasource">保存</el-button>
+		</div>
+	</div>
+</template>

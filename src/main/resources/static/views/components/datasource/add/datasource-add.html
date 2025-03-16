@@ -1,0 +1,24 @@
+<template>
+	<div>
+		<div class="page-header">
+			<div class="flex-between flex-start">
+				<div class="title-info-container">
+					<h1>新增数据源</h1>
+				</div>
+			</div>
+			<div class="desc">选择数据源类型</div>
+		</div>
+		<div class="border-input margin-bottom-16">
+	        <el-input v-model="searchInput" placeholder="Search by name or type" prefix-icon="el-icon-search"></el-input>
+	    </div>
+		<div v-for="item in filteredDatasourceTypeOptions" :key="item.type">
+			<div class="list-item flex-center" @click="editDatasource(item.type)">
+				<img :src="item.icon" class="list-item-logo margin-right-16">
+	            <div>
+	                <div class="list-item-title">{{ item.type }}</div>
+	                <div class="list-item-desc">{{ item.description }}</div>
+	            </div>
+			</div>
+		</div>
+	</div>
+</template>

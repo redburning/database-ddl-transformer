@@ -1,0 +1,81 @@
+.el-dialog__body {
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+.sql-container {
+	max-height: 500px;
+	white-space: nowrap !important;
+	margin: 8px 0px;
+}
+
+.CodeMirror-code {
+    font-family: Consolas,Monaco,'Andale Mono','Ubuntu Mono',monospace;
+}
+
+.progress {
+	padding: 25px;
+    margin-top: 10px;
+    background-color: white;
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    width: 500px;
+    border-radius: 10px;
+    border: 1px solid #DCDFE6;
+    z-index: 100;
+}
+
+.margin-gap-5 {
+	margin-left: 5px;
+	margin-right: 5px;
+}
+
+.highlight-green {
+	background-color: #52c41a;
+	color: white;
+	padding: 4px 6px;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.highlight-blue {
+	background-color: #5db1ff;
+	color: white;
+	padding: 4px 6px;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.highlight-yellow {
+	background-color: #ffc465;
+	color: white;
+	padding: 4px 6px;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.highlight-red {
+	background-color: #e0226e;
+	color: white;
+	padding: 4px 6px;
+	border-radius: 4px;
+	font-size: 12px;
+}
+
+.source-title {
+	color: rgb(80, 129, 203); 
+	font-weight: 500; 
+	font-size: 1.08rem;
+}
+
+.target-title {
+	color: rgb(246, 155, 22); 
+	font-weight: 500; 
+	font-size: 1.08rem;
+}
+
+.margin-30 {
+	margin-top: 30px;
+	margin-bottom: 30px;
+}

@@ -1,0 +1,28 @@
+<template>
+	<div>
+		<div class="page-header">
+			<div class="flex-between flex-start">
+				<div class="title-info-container">
+					<h1>任务管理</h1>
+				</div>
+				<el-button type="primary" size="small" class="icon-plus" @click="addTask()">新建任务</el-button>
+			</div>
+			<div class="desc">查看和管理您的任务</div>
+		</div>
+		<div class="border-input margin-bottom-16">
+	        <el-input v-model="searchInput" placeholder="Search by name or type" prefix-icon="el-icon-search"></el-input>
+	    </div>
+		<div v-for="item in filteredTaskList" :key="item.id" class="list-item flex flex-between" @click="editTask(item.id)">
+			<div class="flex-center">
+	            <div>{{ item.name }}</div>
+	            <div class="flex-center margin-left-40 gap-16">
+	            	<img :src="item.sourceDatasource.icon" class="datasource-logo">
+		            <div>{{ item.sourceDatabase }}</div>
+		            <img src="assets/img/icon-transform.svg" class="icon-transform">
+		            <img :src="item.targetDatasource.icon" class="datasource-logo">
+		            <div>{{ item.targetDatabase }}</div>
+	            </div>
+			</div>
+		</div>
+	</div>
+</template>
